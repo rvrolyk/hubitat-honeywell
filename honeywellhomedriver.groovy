@@ -268,3 +268,4 @@ void refresh()
     LogDebug("Refresh called");
     parent.refreshThermosat(device)
 }
+

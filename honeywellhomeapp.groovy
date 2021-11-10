@@ -560,7 +560,10 @@ def refreshToken()
         } 
         catch (groovyx.net.http.HttpResponseException e) 
         {
-            LogError("Login failed -- ${e.getLocalizedMessage()}: ${e.response.data}")  
+            LogError("Login failed -- Error: ${e.getLocalizedMessage()}: Data: ${e.response.data}")  
+            if (e.response.data.contains("error:invalid_grant") || e.getLocalizedMessage().contains("error:invalid_grant")) {
+                logError('Likely need to re-link oauth!')
+            }
         }
     }
     else
@@ -713,6 +716,7 @@ def refreshThermosat(com.hubitat.app.DeviceWrapper device, retry=false)
     refreshHelper(reJson.changeableValues, "heatSetpoint", "heatingSetpoint", device, tempUnits, false, false)
     refreshHelper(reJson.changeableValues, "coolSetpoint", "coolingSetpoint", device, tempUnits, false, false)
     refreshHelper(reJson.changeableValues, "mode", "thermostatMode", device, null, false, true)
+    refreshHelper(reJson.changeableValues, "thermostatSetpointStatus", "setpointStatus", device, null, false, false)
 
     if (reJson.changeableValues.containsKey("autoChangeoverActive"))
     {
@@ -917,7 +921,7 @@ def refreshRemoteSensor(com.hubitat.app.DeviceWrapper device, retry=false)
     refreshOccupiedAttr(roomJson, device)
 }
 
-def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, emergencyHeatActive=null, heatPoint=null, coolPoint=null, retry=false)
+def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, emergencyHeatActive=null, heatPoint=null, coolPoint=null, holdType="PermanentHold", retry=false)
 {
     LogDebug("setThermosatSetPoint()")
     def deviceID = device.getDeviceNetworkId();
@@ -980,7 +984,7 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
     {
         body = [
                 mode:mode,
-                thermostatSetpointStatus:"PermanentHold", 
+                thermostatSetpointStatus:holdType,
                 heatSetpoint:heatPoint, 
                 coolSetpoint:coolPoint]
     }
@@ -1090,3 +1094,5 @@ def setThermosatFan(com.hubitat.app.DeviceWrapper device, fan=null, retry=false)
     refreshThermosat(device)
     return true;
 }
+
+
