@@ -561,9 +561,9 @@ def refreshToken()
         catch (groovyx.net.http.HttpResponseException e) 
         {
             LogError("Login failed -- Error: ${e.getLocalizedMessage()}: Data: ${e.response.data}")  
-            if (e.response.data.contains("error:invalid_grant") || e.getLocalizedMessage().contains("error:invalid_grant")) {
+           /* if (e.response.data.contains("error:invalid_grant") || e.getLocalizedMessage().contains("error:invalid_grant")) {
                 logError('Likely need to re-link oauth!')
-            }
+            }*/
         }
     }
     else
