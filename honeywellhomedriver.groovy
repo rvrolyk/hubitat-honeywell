@@ -1,5 +1,5 @@
 /*
-Hubitat Driver For Honeywell Thermistate
+Hubitat Driver For Honeywell Thermostat
 
 Copyright 2020 - Taylor Brown
 
@@ -38,6 +38,9 @@ metadata {
         attribute "autoChangeoverActive", "enum", ["unsupported", "true", "false"]
         attribute "allowedModes", "enum", ["EmergencyHeat", "Heat", "Off", "Cool","Auto"]
         attribute "units", "enum", ["F", "C"]
+        attribute "setpointStatus", "enum", ["TemporaryHold", "PermanentHold", "NoHold"]
+        
+        command "setSetpointType", [[name: "setpointType", type: "ENUM", constraints: ["TemporaryHold", "PermanentHold", "NoHold", "HoldUntil"]]]
 
     }
     preferences{
@@ -54,6 +57,10 @@ metadata {
 			   title: "Enable description text logging", 
 			   defaultValue: true)
     }
+}
+
+void setSetpointType(type) {
+    state.setpointType = type
 }
 
 void LogDebug(logMessage)
@@ -88,6 +95,7 @@ void installed()
     debugLogs = false
     descriptionText = true
     refresh()
+    state.setpointType = "NoHold"
 }
 
 void uninstalled()
@@ -173,11 +181,11 @@ void setCoolingSetpoint(temperature)
     LogDebug("setCoolingSetpoint() - autoChangeoverActive: ${device.currentValue("autoChangeoverActive")}");
     
     //setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, heatPoint=null, coolPoint=null)
-    if (!parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, temperature))
+    if (!parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, temperature, state?.setpointType))
     {
         LogWarn("Set cooling point failed, attempting a refresh and re-try.")
         parent.refreshThermosat(device)
-        parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, temperature)
+        parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), null, temperature, state?.setpointType)
     }
     else
     {
@@ -188,14 +196,14 @@ void setCoolingSetpoint(temperature)
 //Defined Command : temperature required (NUMBER) - Heating setpoint in degrees
 void setHeatingSetpoint(temperature)
 {
-    LogDebug("setHeatingSetpoint() - autoChangeoverActive: ${device.currentValue("autoChangeoverActive")}");
+    LogDebug("setHeatingSetpoint() - autoChangeoverActive: ${device.currentValue("autoChangeoverActive")} setpointType: ${state?.setpointType}");
 
     //setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoChangeoverActive=false, heatPoint=null, coolPoint=null)
-    if (!parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), temperature, null))
+    if (!parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), temperature, null, state?.setpointType))
     {
         LogWarn("Set heating point failed, attempting a refresh and re-try.")
         parent.refreshThermosat(device)
-        parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), temperature, null)
+        parent.setThermosatSetPoint(device, null, device.currentValue("autoChangeoverActive"), device.currentValue("emergencyHeatActive"), temperature, null, state?.setpointType)
     }
     else
     {
