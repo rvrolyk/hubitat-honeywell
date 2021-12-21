@@ -38,9 +38,9 @@ metadata {
         attribute "autoChangeoverActive", "enum", ["unsupported", "true", "false"]
         attribute "allowedModes", "enum", ["EmergencyHeat", "Heat", "Off", "Cool","Auto"]
         attribute "units", "enum", ["F", "C"]
-        attribute "setpointStatus", "enum", ["TemporaryHold", "PermanentHold", "NoHold"]
+        attribute "setpointStatus", "enum", ["TemporaryHold", "PermanentHold", "NoHold", "HoldUntil"]
         
-        command "setSetpointType", [[name: "setpointType", type: "ENUM", constraints: ["TemporaryHold", "PermanentHold", "NoHold", "HoldUntil"]]]
+        command "setSetpointType", [[name: "setpointType", type: "ENUM", constraints: ["TemporaryHold", "PermanentHold", "NoHold"]]]
 
     }
     preferences{
