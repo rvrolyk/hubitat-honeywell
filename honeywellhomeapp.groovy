@@ -1,5 +1,5 @@
 /*
-Hubitat Driver For Honeywell Thermistate
+Hubitat Driver For Honeywell Thermostat
 
 Copyright 2020 - Taylor Brown
 
@@ -13,7 +13,6 @@ Major Releases:
 11-25-2020 :  Initial 
 11-27-2020 :  Alpha Release (0.1)
 12-15-2020 :  Beta 1 Release (0.2.0)
-
 
 Considerable inspiration an example to: https://github.com/dkilgore90/google-sdm-api/
 */
@@ -717,6 +716,18 @@ def refreshThermosat(com.hubitat.app.DeviceWrapper device, retry=false)
     refreshHelper(reJson.changeableValues, "coolSetpoint", "coolingSetpoint", device, tempUnits, false, false)
     refreshHelper(reJson.changeableValues, "mode", "thermostatMode", device, null, false, true)
     refreshHelper(reJson.changeableValues, "thermostatSetpointStatus", "setpointStatus", device, null, false, false)
+    
+    // can't figure out how to get the state from the device wrapper so instead find it in children
+    def childDevice = getChildDevices().find { it.deviceNetworkId == device.getDeviceNetworkId() }
+    if (childDevice == null) log.error "could not find child thermostat!"
+    if (reJson.changeableValues.containsKey("thermostatSetpointStatus") &&
+        childDevice.getState().setpointType != reJson.changeableValues.get("thermostatSetpointStatus")) {
+        def setpoint = reJson.changeableValues.get("thermostatSetpointStatus");
+        if (setpoint == 'HoldUntil') {
+            setpoint = 'TemporaryHold' // TODO: reconsider changing this and introduce time
+        }
+        device.setSetpointType(setpoint)
+    }
 
     if (reJson.changeableValues.containsKey("autoChangeoverActive"))
     {
