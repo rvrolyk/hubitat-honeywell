@@ -32,7 +32,7 @@ definition(
         author: "Taylor Brown",
         description: "App for Lyric (LCC) and T series (TCC) Honeywell Thermostats, requires corisponding driver.",
         importUrl:"https://raw.githubusercontent.com/thecloudtaylor/hubitat-honeywell/main/honeywellhomeapp.groovy",
-        category: "Thermostate",
+        category: "Thermostat",
         iconUrl: "",
         iconX2Url: "")
 
@@ -626,7 +626,7 @@ def refreshHelper(jsonString, cloudString, deviceString, com.hubitat.app.DeviceW
         
         if (value == null)
         {
-            LogDebug("Thermostate Does not Support: ${deviceString} (${cloudString})")
+            LogDebug("Thermostat Does not Support: ${deviceString} (${cloudString})")
             return false;
         }
         if (optionalMakeLowerMap)
@@ -650,7 +650,7 @@ def refreshHelper(jsonString, cloudString, deviceString, com.hubitat.app.DeviceW
     }
     catch (java.lang.NullPointerException e)
     {
-        LogDebug("Thermostate Does not Support: ${deviceString} (${cloudString})")
+        LogDebug("Thermostat Does not Support: ${deviceString} (${cloudString})")
         return false;
     }
 
@@ -1022,7 +1022,7 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
 
     try
     {
-        httpPostJson(params) { response -> LogInfo("SetThermostate() Mode: ${mode}; Heatsetpoint: ${heatPoint}; CoolPoint: ${coolPoint} API Response: ${response.getStatus()}")}
+        httpPostJson(params) { response -> LogInfo("SetThermostat() Mode: ${mode}; Heatsetpoint: ${heatPoint}; CoolPoint: ${coolPoint} API Response: ${response.getStatus()}")}
     }
     catch (groovyx.net.http.HttpResponseException e) 
     {
@@ -1030,7 +1030,7 @@ def setThermosatSetPoint(com.hubitat.app.DeviceWrapper device, mode=null, autoCh
         {
             LogWarn('Authorization token expired, will refresh and retry.')
             refreshToken()
-            setThermosatSetPoint(device, mode, autoChangeoverActive, emergencyHeatActive,  heatPoint, coolPoint, true)
+            setThermosatSetPoint(device, mode, autoChangeoverActive, emergencyHeatActive,  heatPoint, coolPoint, holdType, true)
         }
         LogError("Set Api Call failed -- ${e.getLocalizedMessage()}: ${e.response.data}")
         return false;
@@ -1088,7 +1088,7 @@ def setThermosatFan(com.hubitat.app.DeviceWrapper device, fan=null, retry=false)
 
     try
     {
-        httpPostJson(params) { response -> LogDebug("SetThermostateFan Response: ${response.getStatus()}")}
+        httpPostJson(params) { response -> LogDebug("SetThermostatFan Response: ${response.getStatus()}")}
     }
     catch (groovyx.net.http.HttpResponseException e) 
     {
